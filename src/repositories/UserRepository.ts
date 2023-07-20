@@ -11,9 +11,10 @@ export class UserRepository {
     this.queryBuilder = AppDataSource.createQueryBuilder()
   }
 
-  async existedUser(dto: Partial<User>) {
+  async existedUser(dto: Partial<User>, isShowPassword = false) {
     const user = await this.repository
       .createQueryBuilder('user')
+      .addSelect(isShowPassword ? 'user.password' : '')
       .where('user.username = :username OR user.email = :email', { username: dto.username, email: dto.email })
       .getOne()
 

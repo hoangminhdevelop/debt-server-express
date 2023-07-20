@@ -1,20 +1,37 @@
 require('dotenv').config()
 import 'module-alias/register'
+import '@/passports/localStrategy'
 
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
+import passport from 'passport'
+import session from 'express-session'
 
-import { connectDataSource } from './configs/data-source'
+// -- Middleware  --
 import { responseHelper } from './middlewares/responseHelper'
 import mainRouter from './routes'
-import { PORT } from '@/constants/common'
-import { hashPassword, verifyPassword } from './utils/password'
 
+// -- Utils --
+import { connectDataSource } from './configs/data-source'
+import { PORT } from '@/constants/common'
 const server = express()
 
-// -- Middleware --
+// -- Handle middleware --
 server.use(cors())
 server.use(express.json())
+server.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false,
+  })
+)
+server.use(passport.initialize())
+server.use(passport.session())
+passport.serializeUser((user, done) => done(null, user))
+passport.deserializeUser((user: any, done) => {
+  done(null, user)
+})
 
 // -- Routers--
 server.use(responseHelper)

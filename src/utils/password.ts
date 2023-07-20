@@ -1,4 +1,3 @@
-import { PASSWORD_SECRET_KEY } from '@/constants/common'
 import argon2 from 'argon2'
 
 export const hashPassword = async (raw: string) => {
@@ -7,6 +6,6 @@ export const hashPassword = async (raw: string) => {
   })
 }
 
-export const verifyPassword = async (raw: string, hashed: string) => {
+export const verifyPassword = async (hashed: string, raw: string) => {
   return await argon2.verify(hashed, raw)
 }
