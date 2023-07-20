@@ -1,42 +1,36 @@
-import { Repository } from 'typeorm'
 import { AppDataSource } from '@/configs/data-source'
 import { User } from '@/entities/User'
+import { hashPassword } from '@/utils/password'
 
-class UserRepository {
-  dbRepo: Repository<User>
+export class UserRepository {
+  queryBuilder
+  repository
 
   constructor() {
-    this.dbRepo = AppDataSource.getRepository(User)
+    this.repository = AppDataSource.getRepository(User)
+    this.queryBuilder = AppDataSource.createQueryBuilder()
   }
 
-  findOne() {}
+  async existedUser(dto: Partial<User>) {
+    const user = await this.repository
+      .createQueryBuilder('user')
+      .where('user.username = :username OR user.email = :email', { username: dto.username, email: dto.email })
+      .getOne()
 
-  async findOneById(id: number) {
-    const user = await this.dbRepo.findOneBy({
-      id: id,
-    })
     return user
   }
 
-  findMany() {
-    this.insertOne({
-      email: 'minhtruonghoang28@gmail.com',
-      isActive: true,
-      name: 'Trương Hoàng Minh',
-      password: '12345',
-      username: 'hoangminh28',
-    })
-  }
-
   async insertOne(dto: Omit<User, 'id'>) {
-    const user = new User()
-    user.email = 'minhtruonghoang28@gmail.com'
-    user.isActive = true
-    user.name = 'Trương Hoàng Minh'
-    user.password = '12345'
-    user.username = 'hoangminh28'
+    const existed = await this.existedUser(dto)
+    if (existed) {
+      throw new Error('User existed')
+    }
 
-    await this.dbRepo.save(user)
+    dto.isActive = true
+    dto.password = await hashPassword(dto.password)
+    await this.queryBuilder.insert().into(User).values(dto).execute()
+
+    return dto
   }
 }
 

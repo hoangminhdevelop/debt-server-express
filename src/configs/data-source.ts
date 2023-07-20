@@ -1,7 +1,7 @@
+import 'reflect-metadata'
 import { DataSource } from 'typeorm'
-
 import { DB_DATABASE, DB_HOST, DB_PASSWORD, DB_PORT, DB_USER } from '@/constants/database'
-import entities from '@/entities'
+import { User } from '@/entities/User'
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -11,15 +11,15 @@ export const AppDataSource = new DataSource({
   password: DB_PASSWORD,
   database: DB_DATABASE,
   synchronize: true,
-  logging: true,
-  entities: entities,
+  logging: false,
+  entities: [User],
   subscribers: [],
   migrations: [],
 })
 
 export const connectDataSource = () => {
   AppDataSource.initialize()
-    .then(() => {
+    .then(async () => {
       console.log('Database connect successfully')
     })
     .catch((error) => {
