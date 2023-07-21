@@ -1,4 +1,5 @@
 import { Response, Request } from 'express'
+import httpStatus from 'http-status-codes'
 import { User } from '@/entities/User'
 import { AuthService, authService } from '@/services'
 
@@ -12,18 +13,18 @@ export class AuthController {
   async register(req: Request<Omit<User, 'id'>>, res: Response) {
     try {
       const user = await this.authSer.register(req.body)
-      res.sendResult(200, true, user, undefined)
+      res.sendResult(httpStatus.CREATED, user, undefined)
     } catch (error: any) {
-      res.sendResult(401, false, undefined, error.message)
+      res.sendError(httpStatus.BAD_REQUEST, error.message)
     }
   }
 
   async login(req: Request<Omit<User, 'id'>>, res: Response) {
     try {
       const user = await this.authSer.login(req.body)
-      res.sendResult(200, true, user, undefined)
+      res.sendResult(httpStatus.OK, user, undefined)
     } catch (error: any) {
-      res.sendResult(401, false, undefined, error.message)
+      res.sendError(httpStatus.UNAUTHORIZED, error.message)
     }
   }
 
@@ -32,9 +33,9 @@ export class AuthController {
 
     try {
       const result = await this.authSer.refreshToken(token)
-      res.sendResult(200, true, result)
+      res.sendResult(httpStatus.OK, result)
     } catch (error: any) {
-      res.sendResult(401, false, undefined, error.message)
+      res.sendError(httpStatus.UNAUTHORIZED, error.message)
     }
   }
 }
