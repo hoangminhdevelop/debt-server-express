@@ -6,6 +6,7 @@ import cors from 'cors'
 import express from 'express'
 import passport from 'passport'
 import session from 'express-session'
+import bodyParser from 'body-parser'
 
 // -- Middleware  --
 import { responseHelper } from './middlewares/responseHelper'
@@ -18,6 +19,7 @@ const server = express()
 
 // -- Handle middleware --
 server.use(cors())
+server.use(bodyParser.json())
 server.use(express.json())
 server.use(
   session({

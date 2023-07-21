@@ -16,6 +16,14 @@ export class DebtRepository {
     const newDebt = await this.repo.save(debt)
     return { ...newDebt, user: undefined }
   }
+
+  async findOneById(id: number, userId: number) {
+    return await this.repo.createQueryBuilder('debt').where('debt.id = :id AND debt.userId = :userId', { id, userId }).getOne()
+  }
+
+  async findManyByFilter(userId: number) {
+    return await this.repo.createQueryBuilder('debt').where('debt.userId = :userId', { userId }).getMany()
+  }
 }
 
 export const debtRepository = new DebtRepository()

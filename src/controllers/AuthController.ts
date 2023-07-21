@@ -10,7 +10,7 @@ export class AuthController {
     this.authSer = authSer
   }
 
-  async register(req: Request<Omit<User, 'id'>>, res: Response) {
+  async register(req: Request<any, any, Omit<User, 'id'>>, res: Response) {
     try {
       const user = await this.authSer.register(req.body)
       res.sendResult(httpStatus.CREATED, user, undefined)
@@ -19,7 +19,7 @@ export class AuthController {
     }
   }
 
-  async login(req: Request<Omit<User, 'id'>>, res: Response) {
+  async login(req: Request<any, any, Omit<User, 'id'>>, res: Response) {
     try {
       const user = await this.authSer.login(req.body)
       res.sendResult(httpStatus.OK, user, undefined)
