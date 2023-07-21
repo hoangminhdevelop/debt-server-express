@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Debt } from './Debt'
+
+export type UserInfo = Omit<User, 'password'>
 
 export const USER_TABLE_NAME = 'users'
 @Entity(USER_TABLE_NAME)
@@ -22,4 +25,7 @@ export class User {
 
   @Column()
   isActive: boolean
+
+  @OneToMany(() => Debt, (debt) => debt.user)
+  debts?: Debt[]
 }

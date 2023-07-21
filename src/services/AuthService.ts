@@ -38,7 +38,7 @@ export class AuthService {
 
   async refreshToken(token: string) {
     const userInToken = this.verifyJWTRefresh(token)
-    const user = await this.userRepo.existedUser(userInToken)
+    const user = await this.userRepo.existedUser(userInToken, false)
 
     if (!user) {
       throw new Error('Has something wrong. Please refresh your page or re-login')
@@ -53,7 +53,7 @@ export class AuthService {
     return jwt.sign({ ...user, password: undefined }, JWT_SECRET_KEY, { expiresIn: JWT_EXPIRED_TIME })
   }
 
-  private verifyJWT(token: string): Omit<User, 'password'> {
+  verifyJWT(token: string): Omit<User, 'password'> {
     try {
       const user = jwt.verify(token, JWT_SECRET_KEY) as Omit<User, 'password'>
       return user
