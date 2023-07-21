@@ -9,8 +9,12 @@ declare global {
       sendResult: <TData>(code: number, data?: TData, message?: string) => void
       sendError: (code: number, message: string) => void
     }
-    export interface Request<TBody = any> {
-      body: TBody
+    /**
+     * Generic for Request
+     * < P = core.ParamsDictionary,ResBody = any,ReqBody = any,ReqQuery = core.Query>
+     */
+
+    export interface Request {
       user: UserInfo
     }
 

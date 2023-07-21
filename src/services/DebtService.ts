@@ -26,6 +26,36 @@ export class DebtService {
       throw new Error('Create the new debt failed')
     }
   }
+
+  async getDebtById(id: number, userId?: number) {
+    if (!userId) {
+      throw new Error('Cannot found this debt')
+    }
+    try {
+      const debt = await this.debtRepo.findOneById(id, userId)
+      if (!debt) {
+        throw new Error('Cannot found this debt')
+      }
+      return debt
+    } catch (error) {
+      throw new Error('Cannot found this debt')
+    }
+  }
+
+  async getDebtListByUserId(userId?: number) {
+    if (!userId) {
+      throw new Error('Cannot found debt list')
+    }
+    try {
+      const debts = await this.debtRepo.findManyByFilter(userId)
+      if (!debts) {
+        throw new Error('Cannot found debt list')
+      }
+      return debts
+    } catch (error) {
+      throw new Error('Cannot found debt list')
+    }
+  }
 }
 
 export const debtService = new DebtService(debtRepository, userRepository)
