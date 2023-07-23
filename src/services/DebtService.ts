@@ -48,6 +48,15 @@ export class DebtService {
       throw new Error('Cannot found debt list')
     }
   }
+
+  async updateOneDebt(dto: Pick<DebtBase, 'amount' | 'id' | 'userId'>) {
+    try {
+      const res = await this.debtRepo.updateOne(dto)
+      return res
+    } catch (error: any) {
+      throw new Error(error.message)
+    }
+  }
 }
 
 export const debtService = new DebtService(debtRepository, userRepository)
