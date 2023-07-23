@@ -13,7 +13,7 @@ export class AuthController {
   async register(req: Request<any, any, Omit<User, 'id'>>, res: Response) {
     try {
       const user = await this.authSer.register(req.body)
-      res.sendResult(httpStatus.CREATED, user, undefined)
+      res.sendResult(httpStatus.CREATED, user)
     } catch (error: any) {
       res.sendError(httpStatus.BAD_REQUEST, error.message)
     }
