@@ -24,6 +24,16 @@ export class DebtRepository {
   async findManyByFilter(userId: number) {
     return await this.repo.createQueryBuilder('debt').where('debt.userId = :userId', { userId }).getMany()
   }
+
+  updateOne(dto: Pick<DebtBase, 'userId' | 'id' | 'amount'>) {
+    const { id, userId, amount } = dto
+    return this.repo
+      .createQueryBuilder('debt')
+      .update()
+      .set({ amount: amount })
+      .where('id = :id AND userId = :userId', { id: id, userId: userId })
+      .execute()
+  }
 }
 
 export const debtRepository = new DebtRepository()

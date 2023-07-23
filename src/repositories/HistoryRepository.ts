@@ -10,7 +10,6 @@ export class HistoryRepository {
   }
 
   findManyByFilter(filter: HistoryFilter) {
-    console.log('filter :>> ', filter)
     const queryBuilder = this.repo.createQueryBuilder('history').where('history.userId = :userId', { userId: filter.userId })
 
     if (filter.debtId) {
@@ -20,7 +19,6 @@ export class HistoryRepository {
     }
 
     if (filter.type) {
-      console.log('type :>> ', filter.type)
       queryBuilder.andWhere('history.type = :type', {
         type: filter.type,
       })
@@ -37,7 +35,6 @@ export class HistoryRepository {
   }
 
   insertOneHistory(dto: Partial<History>) {
-    console.log('dto :>> ', dto)
     const history = this.repo.create(dto)
     return this.repo.save(history)
   }
