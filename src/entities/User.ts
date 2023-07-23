@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Index } from 'typeorm'
 import { Debt } from './Debt'
+import { History } from './History'
 
 export type UserInfo = Omit<User, 'password'>
 
@@ -12,7 +13,8 @@ export class User {
   @Column({ length: 100 })
   name: string
 
-  @Column('text')
+  @Index()
+  @Column({ length: 50, unique: true })
   username: string
 
   @Column('text', {
@@ -20,12 +22,16 @@ export class User {
   })
   password: string
 
-  @Column()
+  @Index()
+  @Column({ unique: true })
   email: string
 
   @Column()
   isActive: boolean
 
   @OneToMany(() => Debt, (debt) => debt.user)
-  debts?: Debt[]
+  debts: Debt[]
+
+  @OneToMany(() => History, (history) => history.user)
+  histories: History[]
 }

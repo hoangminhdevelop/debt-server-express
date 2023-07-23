@@ -1,7 +1,7 @@
 import httpStatus from 'http-status-codes'
 import { Request, Response } from 'express'
 
-import { Debt } from '@/entities'
+import { Debt, DebtBase } from '@/entities'
 import { DebtService, debtService } from '@/services'
 
 export class DebtController {
@@ -11,18 +11,22 @@ export class DebtController {
     this.debtSer = debtSer
   }
 
-  async createDebt(req: Request<Pick<Debt, 'icon' | 'debtName'>>, res: Response) {
+  async createDebt(req: Request<any, any, Omit<DebtBase, 'id'>>, res: Response) {
     const dto = req.body
     const user = req.user
 
+    if (!user?.id) {
+      throw new Error('Login first')
+    }
+
     try {
-      const input = {
-        debtName: dto.debtName,
-        icon: dto.icon ?? 'default',
+      const input: Omit<DebtBase, 'id'> = {
+        ...dto,
         amount: 0,
+        userId: user?.id,
       }
 
-      const debt = await this.debtSer.createNewDebt(input, user?.id)
+      const debt = await this.debtSer.createNewDebt(input)
       res.sendResult(httpStatus.OK, debt)
     } catch (error: any) {
       res.sendError(httpStatus.BAD_REQUEST, error.message)
