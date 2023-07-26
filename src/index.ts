@@ -43,7 +43,7 @@ const init = async () => {
   try {
     connectDataSource()
     server.listen(PORT, async () => {
-      console.log(`Example server listening on port ${PORT}`)
+      console.log(`Server listening on port ${PORT}`)
     })
   } catch (error) {
     throw error
