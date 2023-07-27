@@ -1,8 +1,7 @@
-import jwt from 'jsonwebtoken'
 import { User } from '@/entities/User'
 import { UserRepository, userRepository } from '@/repositories'
 import { verifyPassword } from '@/utils/password'
-import { JWT_SECRET_KEY, JWT_EXPIRED_TIME, JWT_REFRESH_SECRET_KEY, JWT_EXPIRED_TIME_REFRESH } from '@/constants/common'
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/utils/jwt'
 
 export class AuthService {
   constructor(private userRepo: UserRepository) {}
@@ -31,48 +30,17 @@ export class AuthService {
     if (!matchPassword) {
       throw new Error('Enter wrong password')
     }
-    const token = this.initJWT(user)
-    const refreshToken = this.initJWTRefresh(user)
+    const token = generateAccessToken(user)
+    const refreshToken = generateRefreshToken(user)
     return { user, token, refreshToken }
   }
 
   async refreshToken(token: string) {
-    const userInToken = this.verifyJWTRefresh(token)
-    const user = await this.userRepo.existedUser(userInToken, false)
+    const decoded = verifyRefreshToken(token)
 
-    if (!user) {
-      throw new Error('Has something wrong. Please refresh your page or re-login')
-    }
-
-    const newToken = this.initJWT(user)
-    const newRefreshToken = this.initJWTRefresh(user)
+    const newToken = generateAccessToken(decoded.payload)
+    const newRefreshToken = generateRefreshToken(decoded.payload)
     return { token: newToken, refreshToken: newRefreshToken }
-  }
-
-  private initJWT(user: Omit<User, 'password'>) {
-    return jwt.sign({ ...user, password: undefined }, JWT_SECRET_KEY, { expiresIn: JWT_EXPIRED_TIME })
-  }
-
-  verifyJWT(token: string): Omit<User, 'password'> {
-    try {
-      const user = jwt.verify(token, JWT_SECRET_KEY) as Omit<User, 'password'>
-      return user
-    } catch (error) {
-      throw new Error('Has something wrong. Please refresh your page or re-login')
-    }
-  }
-
-  private initJWTRefresh(user: Omit<User, 'password'>) {
-    return jwt.sign({ ...user, password: undefined }, JWT_REFRESH_SECRET_KEY, { expiresIn: JWT_EXPIRED_TIME_REFRESH })
-  }
-
-  private verifyJWTRefresh(token: string): Omit<User, 'password'> {
-    try {
-      const user = jwt.verify(token, JWT_REFRESH_SECRET_KEY) as Omit<User, 'password'>
-      return user
-    } catch (error) {
-      throw new Error('Has something wrong. Please refresh your page or re-login')
-    }
   }
 }
 export const authService = new AuthService(userRepository)
