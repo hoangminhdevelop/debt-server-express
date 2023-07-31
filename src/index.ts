@@ -7,6 +7,7 @@ import express from 'express'
 import passport from 'passport'
 import session from 'express-session'
 import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 
 // -- Middleware  --
 import { responseHelper } from './middlewares/responseHelper'
@@ -18,8 +19,9 @@ import { PORT } from '@/constants/common'
 const server = express()
 
 // -- Handle middleware --
-server.use(cors())
+server.use(cors({ origin: 'http://localhost:5173', credentials: true }))
 server.use(bodyParser.json())
+server.use(cookieParser())
 server.use(express.json())
 server.use(
   session({
@@ -28,6 +30,7 @@ server.use(
     saveUninitialized: false,
   })
 )
+
 server.use(passport.initialize())
 server.use(passport.session())
 passport.serializeUser((user, done) => done(null, user))
@@ -36,6 +39,7 @@ passport.deserializeUser((user: any, done) => {
 })
 
 // -- Routers--
+
 server.use(responseHelper)
 server.use(mainRouter)
 

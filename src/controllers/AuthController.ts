@@ -1,7 +1,10 @@
-import { Response, Request } from 'express'
+import { Response, Request, NextFunction } from 'express'
 import httpStatus from 'http-status-codes'
 import { User } from '@/entities/User'
 import { AuthService, authService } from '@/services'
+import { JWT_REFRESH_COOKIE_NAME } from '@/constants/common'
+import passport from 'passport'
+import { refreshJWTCookieOptions } from '@/constants/cookie'
 
 export class AuthController {
   private authSer: AuthService
@@ -19,21 +22,24 @@ export class AuthController {
     }
   }
 
-  async login(req: Request<any, any, Omit<User, 'id'>>, res: Response) {
-    try {
-      const user = await this.authSer.login(req.body)
-      res.sendResult(httpStatus.OK, user, undefined)
-    } catch (error: any) {
-      res.sendError(httpStatus.UNAUTHORIZED, error.message)
-    }
+  async login(req: Request, res: Response) {
+    passport.authenticate('local', (error: any, data: any) => {
+      if (error) {
+        res.sendError(httpStatus.UNAUTHORIZED, error.message)
+      } else {
+        const { user, token, refreshToken } = data
+        res.cookie(JWT_REFRESH_COOKIE_NAME, refreshToken, refreshJWTCookieOptions).sendResult(httpStatus.OK, { user, token })
+      }
+    })(req, req, res)
   }
 
   async refreshToken(req: Request, res: Response) {
-    const token = req.body.refreshToken
-
+    const refreshToken = req.cookies[JWT_REFRESH_COOKIE_NAME]
     try {
-      const result = await this.authSer.refreshToken(token)
-      res.sendResult(httpStatus.OK, result)
+      const data = await this.authSer.refreshToken(refreshToken)
+      res
+        .cookie(JWT_REFRESH_COOKIE_NAME, data.refreshToken, refreshJWTCookieOptions)
+        .sendResult(httpStatus.OK, { token: data.token })
     } catch (error: any) {
       res.sendError(httpStatus.UNAUTHORIZED, error.message)
     }
