@@ -28,7 +28,7 @@ export class AuthController {
         res.sendError(httpStatus.UNAUTHORIZED, error.message)
       } else {
         const { user, token, refreshToken } = data
-        res.cookie(JWT_REFRESH_COOKIE_NAME, refreshToken).sendResult(httpStatus.OK, { user, token })
+        res.cookie(JWT_REFRESH_COOKIE_NAME, refreshToken, refreshJWTCookieOptions).sendResult(httpStatus.OK, { user, token })
       }
     })(req, req, res)
   }
@@ -37,7 +37,6 @@ export class AuthController {
     const refreshToken = req.cookies[JWT_REFRESH_COOKIE_NAME]
     try {
       const data = await this.authSer.refreshToken(refreshToken)
-
       res
         .cookie(JWT_REFRESH_COOKIE_NAME, data.refreshToken, refreshJWTCookieOptions)
         .sendResult(httpStatus.OK, { token: data.token })
