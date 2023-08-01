@@ -58,6 +58,18 @@ export class DebtController {
       res.sendError(httpStatus.BAD_REQUEST, error.message)
     }
   }
+
+  async deleteDebtById(req: Request, res: Response) {
+    const { params, user } = req
+    try {
+      await this.debtSer.deleteDebtById({ id: Number(params.id), userId: user?.id })
+      res.sendResult(httpStatus.OK, {
+        success: 'ok',
+      })
+    } catch (error: any) {
+      res.sendResult(httpStatus.BAD_REQUEST, error.message)
+    }
+  }
 }
 
 export const debtController = new DebtController(debtService)

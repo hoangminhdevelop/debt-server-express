@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, RelationId, Index } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, RelationId, Index, DeleteDateColumn } from 'typeorm'
 import { Debt } from './Debt'
 import { User } from './User'
 
@@ -22,8 +22,11 @@ export class History {
   @Column({ type: 'enum', enum: HistoryAction })
   type: HistoryAction
 
-  @CreateDateColumn({ default: new Date() })
+  @CreateDateColumn({ default: new Date(), type: 'timestamp with time zone' })
   createdAt: Date
+
+  @DeleteDateColumn({ type: 'timestamp with time zone' })
+  deletedDate: Date
 
   @ManyToOne(() => Debt, (debt) => debt.histories)
   debt: Debt

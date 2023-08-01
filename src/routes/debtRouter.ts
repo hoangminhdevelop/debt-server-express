@@ -6,5 +6,6 @@ const debtRouter = express.Router()
 debtRouter.post('/', debtController.createDebt.bind(debtController))
 debtRouter.get('/', debtController.getDebtListByUserId.bind(debtController))
 debtRouter.get('/:id', debtController.getDebtById.bind(debtController))
+debtRouter.delete('/:id', debtController.deleteDebtById.bind(debtController))
 
 export default debtRouter

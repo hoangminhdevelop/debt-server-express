@@ -1,7 +1,7 @@
 import { AppDataSource } from '@/configs/data-source'
 import { Repository } from 'typeorm'
 import { History } from '@/entities'
-import { HistoryFilter } from '@/types/history'
+import { HistoryFilter, Order } from '@/types/history'
 
 export class HistoryRepository {
   repo: Repository<History>
@@ -10,7 +10,11 @@ export class HistoryRepository {
   }
 
   findManyByFilter(filter: HistoryFilter) {
-    const queryBuilder = this.repo.createQueryBuilder('history').where('history.userId = :userId', { userId: filter.userId })
+    const queryBuilder = this.repo
+      .createQueryBuilder('history')
+      .where('history.userId = :userId', { userId: filter.userId })
+      .withDeleted() // Still get debt and history deleted
+      .leftJoinAndSelect('history.debt', 'debt')
 
     if (filter.debtId) {
       queryBuilder.andWhere('history.debtId = :debtId', {
@@ -25,10 +29,19 @@ export class HistoryRepository {
     }
 
     if (filter.start && filter.end) {
-      queryBuilder.andWhere('history.createdAt BETWEEN :start AND :end', {
-        start: filter.start,
-        end: filter.end,
-      })
+      queryBuilder
+        .andWhere('history.createdAt > :start', {
+          start: new Date(filter.start).toUTCString(),
+        })
+        .andWhere('history.createdAt < :end', {
+          end: new Date(filter.end).toUTCString(),
+        })
+    }
+
+    if (filter.order) {
+      queryBuilder.orderBy('history.createdAt', filter.order)
+    } else {
+      queryBuilder.orderBy('history.createdAt', Order.Desc)
     }
 
     return queryBuilder.getMany()
