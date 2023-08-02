@@ -57,6 +57,10 @@ export class DebtService {
       throw new Error(error.message)
     }
   }
+
+  async deleteDebtById(dto: Partial<DebtBase>) {
+    return this.debtRepo.deleteOne(dto)
+  }
 }
 
 export const debtService = new DebtService(debtRepository, userRepository)

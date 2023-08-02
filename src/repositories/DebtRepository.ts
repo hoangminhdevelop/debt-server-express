@@ -34,6 +34,14 @@ export class DebtRepository {
       .where('id = :id AND userId = :userId', { id: id, userId: userId })
       .execute()
   }
+
+  deleteOne(dto: Partial<DebtBase>) {
+    return this.repo
+      .createQueryBuilder('debt')
+      .softDelete()
+      .where('id = :debtId AND userId = :userId', { userId: dto.userId, debtId: dto.id })
+      .execute()
+  }
 }
 
 export const debtRepository = new DebtRepository()
