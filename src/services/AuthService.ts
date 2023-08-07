@@ -6,6 +6,15 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@
 export class AuthService {
   constructor(private userRepo: UserRepository) {}
 
+  async checkTokenVersion(userId: number, tokenVersion: number) {
+    const user = await this.userRepo.findOneById(userId)
+
+    if (!user) return false
+    if (user.tokenVersion !== tokenVersion) return false
+
+    return true
+  }
+
   async register(dto: Omit<User, 'id'>) {
     return await this.userRepo.insertOne(dto)
   }
@@ -37,10 +46,22 @@ export class AuthService {
 
   async refreshToken(token: string) {
     const decoded = verifyRefreshToken(token)
+    const validatedToken = await this.checkTokenVersion(decoded.payload.id, decoded.payload.tokenVersion)
+    if (validatedToken) {
+      const newToken = generateAccessToken(decoded.payload)
+      const newRefreshToken = generateRefreshToken(decoded.payload)
+      return { token: newToken, refreshToken: newRefreshToken }
+    } else {
+      throw new Error('Please login')
+    }
+  }
 
-    const newToken = generateAccessToken(decoded.payload)
-    const newRefreshToken = generateRefreshToken(decoded.payload)
-    return { token: newToken, refreshToken: newRefreshToken }
+  async logout(userId: number, currentTokenVersion: number) {
+    try {
+      await this.userRepo.updateOne({ id: userId, tokenVersion: currentTokenVersion + 1 })
+    } catch (error) {
+      throw new Error('Logout failed')
+    }
   }
 }
 export const authService = new AuthService(userRepository)

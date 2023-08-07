@@ -41,6 +41,10 @@ export class UserRepository {
   async findOneById(id: number) {
     return await this.repository.findOneBy({ id })
   }
+
+  updateOne({ id, ...dto }: Partial<User>) {
+    return this.repository.createQueryBuilder().update().set(dto).where('id = :id', { id }).execute()
+  }
 }
 
 export const userRepository = new UserRepository()
