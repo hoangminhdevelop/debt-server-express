@@ -28,7 +28,9 @@ export class AuthController {
         res.sendError(httpStatus.UNAUTHORIZED, error.message)
       } else {
         const { user, token, refreshToken } = data
-        res.cookie(JWT_REFRESH_COOKIE_NAME, refreshToken, refreshJWTCookieOptions).sendResult(httpStatus.OK, { user, token })
+        res.cookie(JWT_REFRESH_COOKIE_NAME, refreshToken, refreshJWTCookieOptions)
+
+        res.sendResult(httpStatus.OK, { user, token })
       }
     })(req, req, res)
   }
@@ -37,11 +39,25 @@ export class AuthController {
     const refreshToken = req.cookies[JWT_REFRESH_COOKIE_NAME]
     try {
       const data = await this.authSer.refreshToken(refreshToken)
-      res
-        .cookie(JWT_REFRESH_COOKIE_NAME, data.refreshToken, refreshJWTCookieOptions)
-        .sendResult(httpStatus.OK, { token: data.token })
+      res.cookie(JWT_REFRESH_COOKIE_NAME, data.refreshToken, refreshJWTCookieOptions)
+      res.sendResult(httpStatus.OK, { token: data.token })
     } catch (error: any) {
       res.sendError(httpStatus.UNAUTHORIZED, error.message)
+    }
+  }
+
+  async logout(req: Request, res: Response) {
+    try {
+      const { user } = req
+      if (!user) {
+        throw new Error('Login first')
+      }
+
+      await this.authSer.logout(user?.id, user?.tokenVersion)
+      res.clearCookie(JWT_REFRESH_COOKIE_NAME, refreshJWTCookieOptions)
+      res.sendResult(httpStatus.OK, 'Logout successfully')
+    } catch (error: any) {
+      res.sendError(httpStatus.BAD_REQUEST, error.message)
     }
   }
 }

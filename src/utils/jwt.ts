@@ -37,7 +37,8 @@ export const verifyAccessToken = (accessToken: string) => {
 
 export const verifyRefreshToken = (refreshToken: string) => {
   try {
-    return jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY) as JWTVerify
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY) as JWTVerify
+    return decoded
   } catch (error) {
     throw new Error('Has something wrong. Please refresh your page or re-login')
   }

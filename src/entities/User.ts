@@ -29,6 +29,9 @@ export class User {
   @Column()
   isActive: boolean
 
+  @Column({ default: 0 })
+  tokenVersion: number
+
   @OneToMany(() => Debt, (debt) => debt.user)
   debts: Debt[]
 
